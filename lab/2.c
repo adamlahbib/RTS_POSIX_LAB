@@ -7,68 +7,79 @@
 // mutex for each segment
 pthread_mutex_t ab, bc, cd, bf, ce;
 
+//function to wait in minutes
 void wait(int minutes) {
     int ms = 60000 * minutes;
     clock_t start_time = clock();
     while (clock() < start_time + ms);
 }
 
-// metro a to b
-void *a_to_d(void *arg) {
+// MR1: metro a to d
+void *mr1(void *arg) {
+    printf("Metro %ld is departing from terminal A\n", (intptr_t) arg);
+
     // traversing segment ab
     pthread_mutex_lock(&ab);
-    printf("Metro %ld is traversing segment ab\n", (intptr_t) arg);
+    printf("Metro %ld is traversing segment AB\n", (intptr_t) arg);
     wait(6);
     pthread_mutex_unlock(&ab);
-    printf("Metro %ld has traversed segment ab\n", (intptr_t) arg);
+    printf("Metro %ld is at station B\n", (intptr_t) arg);
     // traversing segment bc
     pthread_mutex_lock(&bc);
-    printf("Metro %ld is traversing segment bc\n", (intptr_t) arg);
+    printf("Metro %ld is traversing segment BC\n", (intptr_t) arg);
     wait(6);
     pthread_mutex_unlock(&bc);
-    printf("Metro %ld has traversed segment bc\n", (intptr_t) arg);
+    printf("Metro %ld is at station C\n", (intptr_t) arg);
     // traversing segment cd
     pthread_mutex_lock(&cd);
-    printf("Metro %ld is traversing segment cd\n", (intptr_t) arg);
+    printf("Metro %ld is traversing segment CD\n", (intptr_t) arg);
     wait(6);
     pthread_mutex_unlock(&cd);
-    printf("Metro %ld has traversed segment cd\n", (intptr_t) arg);
+
+    printf("Metro %ld has arrived at terminal D\n", (intptr_t) arg);
     pthread_exit(NULL);
 }
 
-// metro e to b
-void *e_to_b(void *arg) {
-    // traversing segment ce
-    pthread_mutex_lock(&ce);
-    printf("Metro %ld is traversing segment ce\n", (intptr_t) arg);
-    wait(6);
-    pthread_mutex_unlock(&ce);
-    printf("Metro %ld has traversed segment ce\n", (intptr_t) arg);
-    // traversing segment bc
-    pthread_mutex_lock(&bc);
-    printf("Metro %ld is traversing segment bc\n", (intptr_t) arg);
-    wait(6);
-    pthread_mutex_unlock(&bc);
-    printf("Metro %ld has traversed segment bc\n", (intptr_t) arg);
-    pthread_exit(NULL);
-}
+// MR2: metro f to a
+void *mr2(void *arg) {
+    printf("Metro %ld is departing from terminal F\n", (intptr_t) arg);
 
-// metro f to a
-void *f_to_a(void *arg) {
     // traversing segment bf
     pthread_mutex_lock(&bf);
-    printf("Metro %ld is traversing segment bf\n", (intptr_t) arg);
+    printf("Metro %ld is traversing segment BF\n", (intptr_t) arg);
     wait(6);
     pthread_mutex_unlock(&bf);
-    printf("Metro %ld has traversed segment bf\n", (intptr_t) arg);
+    printf("Metro %ld is at station B\n", (intptr_t) arg);
     // traversing segment ab
     pthread_mutex_lock(&ab);
-    printf("Metro %ld is traversing segment ab\n", (intptr_t) arg);
+    printf("Metro %ld is traversing segment AB\n", (intptr_t) arg);
     wait(6);
     pthread_mutex_unlock(&ab);
-    printf("Metro %ld has traversed segment ab\n", (intptr_t) arg);
+
+    printf("Metro %ld has arrived at terminal A\n", (intptr_t) arg);
     pthread_exit(NULL);
 }
+
+//MR3: metro e to b
+void *mr3(void *arg) {
+    printf("Metro %ld is departing from terminal E\n", (intptr_t) arg);
+    
+    // traversing segment ce
+    pthread_mutex_lock(&ce);
+    printf("Metro %ld is traversing segment CE\n", (intptr_t) arg);
+    wait(6);
+    pthread_mutex_unlock(&ce);
+    printf("Metro %ld is at station C\n", (intptr_t) arg);
+    // traversing segment bc
+    pthread_mutex_lock(&bc);
+    printf("Metro %ld is traversing segment BC\n", (intptr_t) arg);
+    wait(6);
+    pthread_mutex_unlock(&bc);
+
+    printf("Metro %ld has arrived at station B\n", (intptr_t) arg);
+    pthread_exit(NULL);
+}
+
 
 void main(){
     // initialize mutex
@@ -79,21 +90,26 @@ void main(){
     pthread_mutex_init(&ce, NULL);
 
     // create threads
-    pthread_t a, b, c, d, e, f;
-    pthread_create(&a, NULL, a_to_d, (void *) (intptr_t) 1);
-    pthread_create(&b, NULL, a_to_d, (void *) (intptr_t) 2);
-    pthread_create(&c, NULL, a_to_d, (void *) (intptr_t) 3);
-    pthread_create(&d, NULL, a_to_d, (void *) (intptr_t) 4);
-    pthread_create(&e, NULL, e_to_b, (void *) (intptr_t) 5);
-    pthread_create(&f, NULL, f_to_a, (void *) (intptr_t) 6);
+    pthread_t m1,m2,m3,m4,m5,m6,m7,m8;
+    pthread_create(&m1, NULL, mr1, (void *) (intptr_t) 1);
+    pthread_create(&m2, NULL, mr1, (void *) (intptr_t) 2);
+    pthread_create(&m3, NULL, mr1, (void *) (intptr_t) 3);
+    pthread_create(&m4, NULL, mr1, (void *) (intptr_t) 4);
+    pthread_create(&m5, NULL, mr3, (void *) (intptr_t) 5);
+    pthread_create(&m6, NULL, mr2, (void *) (intptr_t) 6);
+    pthread_create(&m7, NULL, mr3, (void *) (intptr_t) 7);
+    pthread_create(&m8, NULL, mr2, (void *) (intptr_t) 8);
+
 
     // wait for threads to finish
-    pthread_join(a, NULL);
-    pthread_join(b, NULL);
-    pthread_join(c, NULL);
-    pthread_join(d, NULL);
-    pthread_join(e, NULL);
-    pthread_join(f, NULL);
+    pthread_join(m1, NULL);
+    pthread_join(m2, NULL);
+    pthread_join(m3, NULL);
+    pthread_join(m4, NULL);
+    pthread_join(m5, NULL);
+    pthread_join(m6, NULL);
+    pthread_join(m7, NULL);
+    pthread_join(m8, NULL);
 
     // destroy mutex
     pthread_mutex_destroy(&ab);
